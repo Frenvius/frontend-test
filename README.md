@@ -1,4 +1,4 @@
-# typescript-app
+# solucx-frontend-test
 
 ## Project setup
 ```
