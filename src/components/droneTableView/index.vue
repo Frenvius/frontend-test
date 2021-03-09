@@ -13,8 +13,8 @@
         </b-form-fieldset>
         <b-form-fieldset horizontal label="Current Fly" class="col-2">
           <b-form-select
-            v-model="filters.currentFly"
-            :options="currentFlyOptions"
+              v-model="filters.currentFly"
+              :options="currentFlyOptions"
           />
         </b-form-fieldset>
         <b-form-fieldset horizontal label="Status" class="col-2">
@@ -26,21 +26,68 @@
       </div>
 
       <b-table
-        :items="filteredItems"
-        :fields="fields"
-        striped
-        hover
-        :current-page="currentPage"
-        :per-page="perPage"
+          :items="filteredItems"
+          :fields="fields"
+          striped
+          hover
+          :current-page="currentPage"
+          :per-page="perPage"
       >
+        <template #cell(name)="data">
+          <b-img
+              class="customer__avatar"
+              :src="data.item.image"
+              alt="Drone avatar"
+          ></b-img>
+          <span class="customer__info">
+            <div class="customer__info__name">{{ data.item.name }}</div>
+            <small class="customer__info__address">{{
+              data.item.address
+            }}</small>
+          </span>
+        </template>
+        <template #cell(battery)="data">
+          <b-progress
+              :value="data.item.battery"
+              :max="100"
+              class="battery__progress"
+              align-v="center"
+              :id="'battery-status-' + data.index"
+          ></b-progress>
+          <b-tooltip
+              :ref="'batteryTooltip-' + data.index"
+              :target="'battery-status-' + data.index"
+          >
+            {{ data.item.battery }}%
+          </b-tooltip>
+        </template>
+        <template #cell(max_speed)="data">
+          {{ formatSpeed(data.item.max_speed)[0] }}.<small
+        >{{ formatSpeed(data.item.max_speed)[1] }} m/h</small
+        >
+        </template>
+        <template #cell(average_speed)="data">
+          {{ formatSpeed(data.item.average_speed)[0] }}.<small
+        >{{ formatSpeed(data.item.average_speed)[1] }} m/h</small
+        >
+        </template>
+        <template #cell(fly)="data">
+          <b-form-input
+              :value="data.item.fly"
+              :class="data.item.currentFly + ' fly-range'"
+              type="range"
+              :max="100"
+              disabled
+          ></b-form-input>
+        </template>
       </b-table>
       <b-row>
         <b-col md="6" class="my-1">
           <b-pagination
-            :total-rows="totalRows"
-            :per-page="perPage"
-            v-model="currentPage"
-            class="my-0"
+              :total-rows="totalRows"
+              :per-page="perPage"
+              v-model="currentPage"
+              class="my-0"
           />
         </b-col>
       </b-row>
@@ -158,11 +205,11 @@ export default Vue.extend({
         e.fly < 50 ? (e.currentFly = "going") : (e.currentFly = "coming");
         return Object.keys(this.filters).every((el: string) => {
           return (
-            this.filters[el] === "" ||
-            this.filters[el] === "Select" ||
-            String(e[el])
-              .toLowerCase()
-              .indexOf(this.filters[el].toLowerCase()) !== -1
+              this.filters[el] === "" ||
+              this.filters[el] === "Select" ||
+              String(e[el])
+                  .toLowerCase()
+                  .indexOf(this.filters[el].toLowerCase()) !== -1
           );
         });
       });
@@ -174,6 +221,11 @@ export default Vue.extend({
     totalRows() {
       const filteredItems: Drone[] = this.filteredItems;
       return filteredItems.length;
+    }
+  },
+  methods: {
+    formatSpeed(speed: string) {
+      return speed.toString().split(".");
     }
   },
   mounted() {
