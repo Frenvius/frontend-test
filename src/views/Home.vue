@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <droneTable msg="Welcome to Your Vue.js + TypeScript App" />
+    <droneTable />
   </div>
 </template>
 

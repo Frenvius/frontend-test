@@ -1,5 +1,17 @@
 <template>
   <div class="detail">
-    <h1>This is an detail page</h1>
+    <DroneDetails />
   </div>
 </template>
+
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import DroneDetails from "@/components/droneDetailsView/index.vue";
+
+@Component({
+  components: {
+    DroneDetails
+  }
+})
+export default class Home extends Vue {}
+</script>

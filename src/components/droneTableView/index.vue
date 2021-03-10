@@ -24,7 +24,6 @@
           <b-form-select v-model="perPage" :options="pageOptions" />
         </b-form-fieldset>
       </div>
-
       <b-table
         class="drone-table"
         :items="filteredItems"
@@ -35,6 +34,7 @@
         :tbody-tr-class="droneStatus"
         @row-hovered="onRowHover"
         @row-unhovered="onRowUnhovered"
+        @row-clicked="seeDetails"
       >
         <template #cell(name)="data">
           <b-img
@@ -114,48 +114,18 @@
 </template>
 
 <script lang="ts">
-type Drone = {
-  [index: string]: string | number;
-  id: number;
-  image: string;
-  name: string;
-  address: string;
-  battery: number;
-  max_speed: number;
-  average_speed: number;
-  status: string;
-  fly: number;
-  currentFly: string;
-};
-
-type Filter = {
-  [index: string]: string;
-  id: string;
-  name: string;
-  currentFly: string;
-  status: string;
-};
-
-type DataType = {
-  selectAll: boolean;
-  records: Drone[];
-  perPage: number;
-  currentPage: number;
-  filters: Filter;
-  pageOptions: number[];
-  currentFlyOptions: string[];
-  fields: object[];
-};
-
 import Vue from "vue";
 import axios from "axios";
+
+import { Drone } from "@/models/Drone";
+import { DataType } from "@/models/DataType";
 
 export default Vue.extend({
   data(): DataType {
     return {
       selectAll: false,
       records: [],
-      perPage: 10,
+      perPage: 5,
       currentPage: 1,
       filters: {
         id: "",
@@ -163,7 +133,7 @@ export default Vue.extend({
         currentFly: "Select",
         status: "Select"
       },
-      pageOptions: [10, 20, 30, 50, 100],
+      pageOptions: [5, 10, 20, 30, 50, 100],
       currentFlyOptions: ["Select", "Going", "Coming"],
       fields: [
         {
@@ -253,6 +223,13 @@ export default Vue.extend({
     },
     onRowUnhovered: function(item: Drone, index: number) {
       (this as any).$refs["batteryTooltip-" + index].$emit("close");
+    },
+    seeDetails: function(item: Drone) {
+      this.$router.push({
+        path: "/details",
+        name: "Details",
+        params: { id: String(item.id) }
+      });
     }
   },
   mounted() {

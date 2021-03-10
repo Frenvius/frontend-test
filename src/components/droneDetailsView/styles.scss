@@ -1,0 +1,117 @@
+$blue: #f1f9ff;
+$light-blue: #bce0fd;
+$mid-blue: #49a9fb;
+$dark-blue: #2699fb;
+$danger: #fb3f26;
+$warning: #fba926;
+
+.detail {
+  text-align: left;
+  padding-top: 10px;
+
+  .back-button {
+    margin-top: 20px;
+    font-size: 32px;
+  }
+}
+
+.detail-box {
+  width: 100%;
+  min-height: 400px;
+  padding: 30px;
+  margin-top: 20px;
+  background-color: $blue;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $mid-blue;
+
+    .info {
+      display: flex;
+    }
+
+    &__battery {
+      align-self: flex-end;
+      position: relative;
+
+      .battery-fill {
+        position: relative;
+        top: 22px;
+        left: 3px;
+        background-color: transparent;
+        height: 10px;
+        width: 24px;
+        border-radius: 2px;
+
+        .progress-bar {
+          background-color: $dark-blue;
+        }
+      }
+
+      &__text {
+        color: $dark-blue;
+        font-weight: bold;
+        margin-left: 5px;
+        vertical-align: super;
+      }
+
+      .battery-icon {
+        fill: $dark-blue;
+        font-size: 34px;
+      }
+    }
+
+    &__avatar {
+      width: 100px;
+      height: 100px;
+      border: 1px solid $light-blue;
+      border-radius: 100%;
+      background-color: $blue;
+    }
+
+    &__info {
+      margin-left: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      &__name {
+        margin-top: 7px;
+        font-size: 2rem;
+        line-height: 1rem;
+        font-weight: bold;
+        text-align: left;
+        color: $dark-blue;
+
+        small {
+          font-size: 70%;
+        }
+      }
+
+      &__address {
+        font-size: 100%;
+        margin-top: 10px;
+        color: $mid-blue;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+
+    &__drone-info-item {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: $mid-blue;
+
+      .b-icon {
+        margin-right: 10px;
+      }
+    }
+  }
+}
