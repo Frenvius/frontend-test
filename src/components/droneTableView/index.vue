@@ -33,6 +33,8 @@
         :current-page="currentPage"
         :per-page="perPage"
         :tbody-tr-class="droneStatus"
+        @row-hovered="onRowHover"
+        @row-unhovered="onRowUnhovered"
       >
         <template #cell(name)="data">
           <b-img
@@ -77,13 +79,19 @@
           >
         </template>
         <template #cell(fly)="data">
-          <b-form-input
-            :value="data.item.fly"
-            :class="data.item.currentFly + ' fly-range'"
-            type="range"
-            :max="100"
-            disabled
-          ></b-form-input>
+          <span
+            class="tooltip-wrapper"
+            v-b-tooltip.hover
+            :title="data.item.currentFly"
+          >
+            <b-form-input
+              :value="data.item.fly"
+              :class="data.item.currentFly + ' fly-range'"
+              type="range"
+              :max="100"
+              disabled
+            ></b-form-input>
+          </span>
         </template>
         <template #cell(status)="data">
           <span :class="'status_box ' + data.item.status">{{
@@ -239,6 +247,12 @@ export default Vue.extend({
       if (item && type === "row") {
         return isDroneOnGround ? "drone-on-ground" : undefined;
       }
+    },
+    onRowHover: function(item: Drone, index: number) {
+      (this as any).$refs["batteryTooltip-" + index].$emit("open");
+    },
+    onRowUnhovered: function(item: Drone, index: number) {
+      (this as any).$refs["batteryTooltip-" + index].$emit("close");
     }
   },
   mounted() {
