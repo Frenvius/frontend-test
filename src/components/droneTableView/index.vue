@@ -50,19 +50,22 @@
           </span>
         </template>
         <template #cell(battery)="data">
-          <b-progress
-            :value="data.item.battery"
-            :max="100"
-            class="battery__progress"
-            align-v="center"
-            :id="'battery-status-' + data.index"
-          ></b-progress>
-          <b-tooltip
-            :ref="'batteryTooltip-' + data.index"
-            :target="'battery-status-' + data.index"
-          >
-            {{ data.item.battery }}%
-          </b-tooltip>
+          <span :id="'tooltip-wrapper-' + data.index">
+            <b-progress
+              :value="data.item.battery"
+              :max="100"
+              class="battery__progress"
+              align-v="center"
+              :id="'battery-status-' + data.index"
+            ></b-progress>
+            <b-tooltip
+              :ref="'batteryTooltip-' + data.index"
+              :target="'battery-status-' + data.index"
+              :container="'tooltip-wrapper-' + data.index"
+            >
+              {{ data.item.battery }}%
+            </b-tooltip>
+          </span>
         </template>
         <template #cell(max_speed)="data">
           <span class="speed">
@@ -222,6 +225,7 @@ export default Vue.extend({
       (this as any).$refs["batteryTooltip-" + index].$emit("open");
     },
     onRowUnhovered: function(item: Drone, index: number) {
+      console.log(this);
       (this as any).$refs["batteryTooltip-" + index].$emit("close");
     },
     seeDetails: function(item: Drone) {
