@@ -4,7 +4,7 @@
       <br /><br />LOADING DATA...
     </div>
     <div v-if="hasRecords">
-      <div class="justify-content-centermy-1 row">
+      <div class="justify-content-centermy-1 row filter-row">
         <b-form-fieldset horizontal label="Drone ID" class="col-2">
           <b-form-input v-model="filters.id" type="number"></b-form-input>
         </b-form-fieldset>
@@ -13,8 +13,8 @@
         </b-form-fieldset>
         <b-form-fieldset horizontal label="Current Fly" class="col-2">
           <b-form-select
-              v-model="filters.currentFly"
-              :options="currentFlyOptions"
+            v-model="filters.currentFly"
+            :options="currentFlyOptions"
           />
         </b-form-fieldset>
         <b-form-fieldset horizontal label="Status" class="col-2">
@@ -26,18 +26,19 @@
       </div>
 
       <b-table
-          :items="filteredItems"
-          :fields="fields"
-          striped
-          hover
-          :current-page="currentPage"
-          :per-page="perPage"
+        class="drone-table"
+        :items="filteredItems"
+        :fields="fields"
+        hover
+        :current-page="currentPage"
+        :per-page="perPage"
+        :tbody-tr-class="droneStatus"
       >
         <template #cell(name)="data">
           <b-img
-              class="customer__avatar"
-              :src="data.item.image"
-              alt="Drone avatar"
+            class="customer__avatar"
+            :src="data.item.image"
+            alt="Drone avatar"
           ></b-img>
           <span class="customer__info">
             <div class="customer__info__name">{{ data.item.name }}</div>
@@ -48,46 +49,55 @@
         </template>
         <template #cell(battery)="data">
           <b-progress
-              :value="data.item.battery"
-              :max="100"
-              class="battery__progress"
-              align-v="center"
-              :id="'battery-status-' + data.index"
+            :value="data.item.battery"
+            :max="100"
+            class="battery__progress"
+            align-v="center"
+            :id="'battery-status-' + data.index"
           ></b-progress>
           <b-tooltip
-              :ref="'batteryTooltip-' + data.index"
-              :target="'battery-status-' + data.index"
+            :ref="'batteryTooltip-' + data.index"
+            :target="'battery-status-' + data.index"
           >
             {{ data.item.battery }}%
           </b-tooltip>
         </template>
         <template #cell(max_speed)="data">
-          {{ formatSpeed(data.item.max_speed)[0] }}.<small
-        >{{ formatSpeed(data.item.max_speed)[1] }} m/h</small
-        >
+          <span class="speed">
+            {{ formatSpeed(data.item.max_speed)[0] }}.<small
+              >{{ formatSpeed(data.item.max_speed)[1] }} m/h</small
+            ></span
+          >
         </template>
         <template #cell(average_speed)="data">
-          {{ formatSpeed(data.item.average_speed)[0] }}.<small
-        >{{ formatSpeed(data.item.average_speed)[1] }} m/h</small
-        >
+          <span class="speed">
+            {{ formatSpeed(data.item.average_speed)[0] }}.<small
+              >{{ formatSpeed(data.item.average_speed)[1] }} m/h</small
+            ></span
+          >
         </template>
         <template #cell(fly)="data">
           <b-form-input
-              :value="data.item.fly"
-              :class="data.item.currentFly + ' fly-range'"
-              type="range"
-              :max="100"
-              disabled
+            :value="data.item.fly"
+            :class="data.item.currentFly + ' fly-range'"
+            type="range"
+            :max="100"
+            disabled
           ></b-form-input>
+        </template>
+        <template #cell(status)="data">
+          <span :class="'status_box ' + data.item.status">{{
+            data.item.status
+          }}</span>
         </template>
       </b-table>
       <b-row>
         <b-col md="6" class="my-1">
           <b-pagination
-              :total-rows="totalRows"
-              :per-page="perPage"
-              v-model="currentPage"
-              class="my-0"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            v-model="currentPage"
+            class="my-0"
           />
         </b-col>
       </b-row>
@@ -126,7 +136,6 @@ type DataType = {
   filters: Filter;
   pageOptions: number[];
   currentFlyOptions: string[];
-  StatusOptions: string[];
   fields: object[];
 };
 
@@ -148,15 +157,6 @@ export default Vue.extend({
       },
       pageOptions: [10, 20, 30, 50, 100],
       currentFlyOptions: ["Select", "Going", "Coming"],
-      StatusOptions: [
-        "Select",
-        "Charging",
-        "Failed",
-        "Flying",
-        "Offline",
-        "Repair",
-        "Success"
-      ],
       fields: [
         {
           key: "id",
@@ -205,27 +205,40 @@ export default Vue.extend({
         e.fly < 50 ? (e.currentFly = "going") : (e.currentFly = "coming");
         return Object.keys(this.filters).every((el: string) => {
           return (
-              this.filters[el] === "" ||
-              this.filters[el] === "Select" ||
-              String(e[el])
-                  .toLowerCase()
-                  .indexOf(this.filters[el].toLowerCase()) !== -1
+            this.filters[el] === "" ||
+            this.filters[el] === "Select" ||
+            String(e[el])
+              .toLowerCase()
+              .indexOf(this.filters[el].toLowerCase()) !== -1
           );
         });
       });
     },
-    hasRecords() {
+    StatusOptions(): string[] {
+      const records: Drone[] = this.records;
+      const statuses: string[] = ["Select"];
+      records.map(item => statuses.push(item.status));
+      return [...new Set(statuses)];
+    },
+    hasRecords(): boolean {
       const records: Drone[] = this.records;
       return records.length > 0;
     },
-    totalRows() {
+    totalRows(): number {
       const filteredItems: Drone[] = this.filteredItems;
       return filteredItems.length;
     }
   },
   methods: {
-    formatSpeed(speed: string) {
+    formatSpeed(speed: string): string[] {
       return speed.toString().split(".");
+    },
+    droneStatus(item: Drone, type: string): string | void {
+      const isDroneOnGround =
+        item.status === "offline" || item.status === "charging";
+      if (item && type === "row") {
+        return isDroneOnGround ? "drone-on-ground" : undefined;
+      }
     }
   },
   mounted() {
@@ -236,4 +249,6 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+@import "./styles.scss";
+</style>
